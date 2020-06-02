@@ -1,13 +1,10 @@
 <template>
 	<div class="header">
-	 <!--<mt-header title='$route.meta.title'>
-        <router-link to="/" slot="right">
-          <mt-button>名字1</mt-button>
-        </router-link>
-      </mt-header>-->
-		<span style="opacity: 0;">名字</span>
-      	<span>银河金服</span>
-      	<span @click="gomine">{{name}}</span>	
+		   <!-- <span  :style="{'opacity': (path=='/index' ? '1':path=='/' ?'1':'0')}" @click="changelg">{{$store.state.lg=='C'?'English':'简体中文'}}</span> -->
+       <span  :style="{'opacity': (path=='/index' ? '1':path=='/' ?'1':'0')}" @click="changelg"><span :class="$store.state.lg=='C'?'blue':''">中文/</span><span :class="$store.state.lg=='E'?'blue':''">EN</span></span>
+      	<span>{{$store.state.lg=='C'?'华夏金服':'HuaXia gold suit'}}</span>
+      	<span @click="gomine" v-if="name==''">{{$store.state.lg=='C'?'未登录':'Sign in'}}</span>
+        <span @click="gomine" v-if="name!==''">{{name}}</span>
 	</div>
 </template>
 
@@ -18,47 +15,29 @@ export default {
 	  },
 	  data () {
 	    return {
-		  name:'未登录'
+		  name:'',
+      path:this.$route.path
 	    }
 	  },
-	 
+
 	  created(){
 	  	this.getinfo();
-//	  	  var data =JSON.parse(localStorage.getItem("user")); 
-//	  	  if(localStorage.getItem('username')){
-//	  	    	this.name=localStorage.getItem('username');
-//	  	    	if(this.name.length>3){
-//		 		this.name=this.name.substring(0,2)+'...'
-//		 	  }
-//	  	  }else{
-//	  	  	this.name=_const.username;
-//	  	  	this.name='未登录';
-//	  	  }
-	  	  
-	  	  
-//	  	  console.log(_const.username)
-//		 if(_const.uid&&_const.uid){
-//		 	this.name=_const.username;
-//		 	if(this.name.length>3){
-//		 		this.name=this.name.substring(0,2)+'...'
-//		 	}
-//		 }else{
-//		 	this.name='未登录';
-//		 }
+      this.path=this.$route.path
 
 	  },
 	  mounted(){
-			
+
 	  },
 	  methods:{
 		gomine(){
-			if(localStorage.getItem('uid')&&this.name!=='未登录'){
-				this.$router.push({path:'/mine'})
-			}else{
-				this.$router.push({path:'/login'})
-			}
+      if(this.name=='' || this.name=='未登录' || this.name=='Sign in'){
+        this.$router.push({path:'/login'})
+      }else{
+       	this.$router.push({path:'/mine'})
+      }
 		 },
 		 getinfo(){
+
 		   	let _this=this;
 		   	$.ajax({
 			 	dataType:"json", 
@@ -66,17 +45,17 @@ export default {
 			 	url:this.testUrl+'mobile/getMyCenter',
 			 	data:{
 			 		uid:localStorage.getItem('uid')
-			 	},  
+			 	},
 			 	success:function(res){
 		       		if(res.code==200){
 		       			if(res.data.realName){
-		       				 _this.name=res.data.realName
+		       				 _this.name=res.data.realName;
 		       			}else{
-		       				_this.name='未登录';
+		       				_this.$store.state.lg=='C'? _this.name='未登录': _this.name='Sign in'
 		       			}
-		       		
-		       		}      
-		         },          
+
+		       		}
+		         },
 		         error:function(res){
 		           _this.$toast('网络错误');
 		         },
@@ -84,9 +63,20 @@ export default {
 		        	$('#loading').hide()
 		        }
 			 });
-		   }
+		   },
+       changelg(){
+         console.log(this.$store.state.lg)
+          if(this.$store.state.lg=='C'){
+            this.$store.state.lg='E';
+           this.$store.state.emsg='network error!'
+          }else{
+           this.$store.state.lg='C';
+           this.$store.state.emsg='网络错误'
+          }
+
+         }
 	  	}
-	  }	
+	  }
 </script>
 
 <style scoped="scoped">
@@ -103,12 +93,17 @@ export default {
 	}
 	.header>span{
 		display: inline-block;
-		width: 33%;
+/* 		width: 33%; */
 	}
 	.header>span:nth-child(1){
 		text-align: left;
+    width:200px;
 	}
 	.header>span:nth-child(3){
 		text-align: right;
+      width:200px;
 	}
+  .blue{
+    color: #3168FA;
+  }
 </style>

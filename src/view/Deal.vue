@@ -1,15 +1,15 @@
 <template>
 	<div class="deal">
 		<Header></Header>
-		<div>
+		<div style="padding-bottom: 50px;">
 		  <ul class="title">
-		    <li>交易产品</li>
-		     <li>最新价</li>
-		     <li>状态</li>
+		    <li>{{$store.state.lg=='C'?'交易产品':'Symbol'}}</li>
+		     <li>{{$store.state.lg=='C'?'最新价':'Last'}}</li>
+		     <li>{{$store.state.lg=='C'?'状态':'Status'}}</li>
 		  </ul>
 		  <ul v-for="item,index in prolist" :key="index" @click="prodetail(item,item.productCode)">
 		  	<li>
-		  		<p class="name">{{item.productName}}</p>
+		  		<p class="name">{{$store.state.lg=='C'?item.productName:item.englishName}}</p>
 		  		<p class="code">{{item.productCode}}</p>
 		  	</li>
 		  	<li :class="item.status==0?'stop':item.status==1&&item.lastZf<0?'down':'up'">
@@ -17,10 +17,12 @@
 		  		<p class="zf">{{Tomunber(item.lastZf)}}</p>
 		  	</li>
 		  	<li class="btn">
-		  		<span :class="item.status==0?'bgstop':item.status==1&&item.lastZf<0?'bgdown':'bgup'">{{item.status==1?'交易中':'已休市'}}</span>
+		  		<span :class="item.status==0?'bgstop':item.status==1&&item.lastZf<0?'bgdown':'bgup'">
+          {{$store.state.lg=='C'&&item.status==1?'交易中':$store.state.lg=='C'&&item.status==0?'已休市':$store.state.lg=='E'&&item.status==1?'Transaction':'Closed'}}
+          </span>
 		  	</li>
 		  </ul>
-			
+
 		</div>
 		<Tabbar></Tabbar>
 	</div>
@@ -37,49 +39,56 @@ export default {
   },
   data () {
     return {
-   prolist:[],
-   timer:'',
+    prolist:[],
+    timer:'',
+    id:''
     }
   },
- 
+
   created(){
-	this.getpro()
+	this.getpro();
+  $('#loading').show();
   },
   mounted(){
-  		$('#loading').show()
+  	$('#loading').show()
 	 this.timer = setInterval(() => {
                 this.getpro();
-           }, 5000)	
+           }, 5000)
   },
   beforeDestroy() {       // 页面离开时断开连接,清除定时器
       clearInterval(this.timer);
    },
   methods:{
 	getpro(){          //获取行情
-		
+
 		let _this=this;
   		$.ajax({
 		 	dataType:"json", 
 		 	type:"get",
-		 	url:this.testUrl+'product/getIndex',
-		 	data:{},		 	
+		 	url:this.testUrl+'product/products',
+		 	data:{
+        typeId:this.$route.query.id?this.$route.query.id:''
+      },
 		 	success:function(res){
 	       		if(res.code==200){
 	       		  _this.prolist=res.data;
+                 $('#loading').hide()
 	       		}
-	       
-	         },          
+
+	         },
 	         error:function(res){
-	          _this.$toast('网络错误');
+	           _this.$toast(_this.$store.state.emsg);
 	         },
 	        complete:function(){
-	          $('#loading').hide()
+
 	        }
 		 });
 		},
 	 prodetail(item,productCode){      //跳转详情页
 	 	if(item.status=='0'){
-	  		 this.$toast('已休市');
+        var msg='';
+        this.$store.state.lg=='C'?msg='已休市':msg='Closed market'
+	  		 this.$toast(msg);
 	  		return false;
 	  	}else{
 	  	this.$router.push({path:'/prodetail',query:{productCode:productCode}})
@@ -102,11 +111,11 @@ ul{
 }
 .name{
 	font-size:0.42rem;
-	color: #333333;	
+	color: #333333;
 }
 .code{
 	font-size:0.37rem;
-	color: #999999;	
+	color: #999999;
 }
 .zhishu{
 	font-size: 0.42rem;
@@ -119,11 +128,13 @@ ul{
 .btn{
     display: flex;
     align-items: center;
-    justify-content: center;	
+    justify-content: center;
 }
 .btn>span{
 	display: inline-block;
-	width: 1.22rem;
+  width: 1.9rem;
+  text-align: center;
+
 	height: 0.56rem;
 	border-radius:4px;
 	font-size: 0.32rem;

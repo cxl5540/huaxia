@@ -1,36 +1,36 @@
 <template>
  <div class="carset">
  	<div class="header">
-	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>返回</span>
-	 	<span>银行卡管理</span>
+	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>{{$store.state.lg=='C'?'返回':'Back'}}</span>
+	 	<span>{{$store.state.lg=='C'?'银行卡管理':'Bank card management'}}</span>
 	 	<span style="opacity: 0;">title</span>
 	 </div>
 	 <div class="content">
-	 	<p><img src="../assets/b_zhushi_l.png"/>此为提现到账的银行卡，请务必妥善完善您的信息</p>
+	 	<p><img src="../assets/b_zhushi_l.png"/>{{$store.state.lg=='C'?'此为提现到账的银行卡，请务必妥善完善您的信息':'please make sure to improve your information'}}</p>
 	 	<ul>
 	 		<li>
-	 			<span>银行：</span>
-	 			<input type="text" v-model="band" placeholder="请输入开户银行"/>
+	 			<span>{{$store.state.lg=='C'?'银行':'bank'}}：</span>
+	 			<input type="text" v-model="band" :placeholder="$store.state.lg=='C'?'请输入开户银行':'input bank'"/>
 	 		</li>
 	 		<li>
-	 			<span>卡号：</span>
-	 			<input type="number"  v-model="cardnumer" placeholder="请输入银行卡号" />
+	 			<span>{{$store.state.lg=='C'?'卡号':'card'}}：</span>
+	 			<input type="number"  v-model="cardnumer"  :placeholder="$store.state.lg=='C'?'请输入银行卡号':'input card number'"/>
 	 		</li>
 	 		<li>
-	 			<span>持卡人：</span>
-	 			<input type="text"   v-model="name" maxlength="5" placeholder="请输入持卡人姓名"/>
+	 			<span>{{$store.state.lg=='C'?'持卡人':'name'}}：</span>
+	 			<input type="text"   v-model="name" maxlength="5" :placeholder="$store.state.lg=='C'?'请输入持卡人姓名':'input name'"/>
 	 		</li>
 	 		<li>
-	 			<span>手机号：</span>
-	 			<input type="number"  v-model="tel" placeholder="请输入预留手机号"/>
+	 			<span>{{$store.state.lg=='C'?'手机号':'phone number'}}：</span>
+	 			<input type="number"  v-model="tel" :placeholder="$store.state.lg=='C'?'请输入预留手机号':'input phone number'"/>
 	 		</li>
 	 		<li>
-	 			<span style="width: 100%;">开卡行详细地址：</span>
-	 			<textarea style="width: 100%;border: none;" type="text"  v-model="adress" placeholder="xx省xx市xx行"/>
+	 			<span style="width: 100%;">{{$store.state.lg=='C'?'开卡行详细地址':'Address'}}：</span>
+	 			<textarea style="width: 100%;border: none;" type="text"  v-model="adress" :placeholder="$store.state.lg=='C'?'xx省xx市xx行':'input address'"/>
 	 		</li>
 	 	</ul>
 	 </div>
-	 <button @click="savemsg()">保存信息</button>
+	 <button @click="savemsg()">{{$store.state.lg=='C'?'保存信息':'Save'}}</button>
  </div>
 </template>
 
@@ -49,12 +49,12 @@ export default {
     	adress:''
     }
   },
- 
+
   created(){
 
   },
   mounted(){
-		
+
   },
   methods:{
 	back(){
@@ -62,7 +62,7 @@ export default {
 	  },
 	savemsg(){
 		if(this.check()){
-			$('#loading').show();		
+			$('#loading').show();
 		let _this=this;
   		$.ajax({
 		 	dataType:"json", 
@@ -81,8 +81,8 @@ export default {
 	       			_this.$toast('绑定成功');
 	       		  _this.$router.push({path:'/cardsure'})
 	       		}
-	       
-	         },          
+
+	         },
 	         error:function(res){
 	          _this.$toast('网络错误');
 	         },
@@ -90,29 +90,37 @@ export default {
 	        	$('#loading').hide()
 	        }
 		 });
-		
-		}	
+
+		}
 	},
 	check(){
 		if(this.band==''||this.cardnumer==''||this.cardnumer==''||this.adress==''||this.name==''){
-				 this.$toast('请完善信息！');
+          var msg='';
+          this.$store.state.lg=='C'?msg='请完善信息':msg='Please complete the information';
+				 this.$toast(msg);
 				return false;
 		}else if(!/^[\u4E00-\u9FA5]{1,5}$/.test(this.name)){
-                 this.$toast('姓名式有误！');
-                return false;
+          var msg1='';
+          this.$store.state.lg=='C'?msg1='姓名式有误':msg1='Wrong name';
+           this.$toast(msg1);
+          return false;
         }else if(!/^1[3|4|5|7|8]\d{9}$/.test(this.tel)){
-                 this.$toast('手机格式有误！');
-                return false;
+          var msg2='';
+          this.$store.state.lg=='C'?msg2='手机格式有误':msg2='Wrong format of mobile phone';
+           this.$toast(msg2);
+          return false;
         }else if(!/^\d{16}|\d{19}$/.test(this.cardnumer)){
-        	 this.$toast('银行卡格式有误！');
-                return false;
+          var msg3='';
+          this.$store.state.lg=='C'?msg3='银行卡格式有误':msg3='Incorrect format of bank card';
+        	 this.$toast(msg3);
+           return false;
         }else{
         		return true;
         }
 	}
-	
+
    }
-  }	
+  }
 </script>
 
 <style scoped>
@@ -132,7 +140,7 @@ ul>li{
 	text-align: left;
 	font-size: 0.42rem;
 	color: #666666;
-	
+
 }
 ul>li>span{
 	display: inline-block;
@@ -168,5 +176,5 @@ button{
 	position: absolute;
 	bottom: 0;
 	left: 0;
-}	
+}
 </style>

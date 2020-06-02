@@ -9,28 +9,24 @@
 				</mt-swipe>
 		</div>
      <div class="product" >
-     		<p>交易产品</p>
+     		<p>{{$store.state.lg=='C'?'产品交易':'Trading products'}}</p>
      		<ul>
-     			<li  v-for="item,index in prolist" :key="index" :class="item.lastZf<0?'down':'up'" @click="prodetail(item,item.productCode)">
-     				<p>{{item.productName}}</p>
-     				<p :class="item.status==0?'stop':item.status==1&&item.lastZf<0?'down':'up'">{{item.lastP}}
-     					<img v-if="item.status==1&&item.lastZf<0" src="../assets/xiadie.png"/>
-     					<img v-if="item.status==1&&item.lastZf>0" src="../assets/xiadie拷贝3.png"/>
-     				</p>
-     				<p :class="item.status==0?'stop':item.lastZf<0?'down':'up'">{{item.status==1?Tomunber(item.lastZf):'休市中'}}</p>
+     			<li  v-for="item,index in prolists" :key="index" :class="item.lastZf<0?'down':'up'" @click="deal(item.id)">
+            <img :src=item.image alt="">
+            <p>{{$store.state.lg=='C'?item.productName:item.eproductName}}</p>
      			</li>
      		</ul>
      </div>
-     
+
      <div class="news">
-	     	<p style="border-bottom: 1px solid #eee;">资讯新闻</p>
+	     	<p style="border-bottom: 1px solid #eee;">{{$store.state.lg=='C'?'新闻资讯':'News'}}</p>
 	     	<div>
 	     		<iframe frameborder="0" width="100%" height="500" scrolling="yes" src="https://www.jin10.com/example/jin10.com.html?fontSize=14px&theme=white"></iframe>
 	     	</div>
      </div>
      <Tabbar></Tabbar>
      <!--<div class="img" v-if="flag==true">
-     	<img src="../assets/pic_qidong.png"/>   	
+     	<img src="../assets/pic_qidong.png"/>
      </div>-->
   </div>
 </template>
@@ -44,68 +40,62 @@ export default {
   name: 'HelloWorld',
   components:{
   	Header,
-   Tabbar,	
+   Tabbar,
   },
   data () {
-    return {   	
+    return {
     	stompClient:'',
             timer:'',
-		        prolist:[
+            prolist:[],
+		        prolists:[
 			        {
-								productName:'--',
-								lastZf:'--',
-					      lastP:'休市中'    
+								productName:'股指期货',
+                eproductName:'Equity Index',
+								productCode:'stock',
+                id:1,
+					      image:require('../assets/images/股票2.png')
 					     },
 				      {
-				      productName:'--',
-							lastZf:'--',
-				      lastP:'休市中'   
+				      productName:'商品期货',
+              eproductName:'Commodity Futures',
+							productCode:'product',
+               id:2,
+				      image:require('../assets/images/期货.png')
 				      },
 				      {
-				      productName:'--',
-							lastZf:'--',
-				      lastP:'休市中'   
+				      productName:'汇率期货',
+               eproductName:'Forex',
+							productCode:'exchange',
+               id:3,
+				      image:require('../assets/images/币种汇率.png')
 				      },
 				      {
-				      productName:'--',
-							lastZf:'--',
-				      lastP:'休市中'   
+				      productName:'数字货币',
+               eproductName:'Digital Currency',
+							productCode:'digital',
+               id:4,
+				      image:require('../assets/images/比特币产品.png')
 				      }
 		       ],
 			   		bannerlist:'',
 			   		flag:true,
-			   		timer:'',			   		
+			   		timer:'',
     }
   },
- 
+
   created(){
    this.getbanner();
-   this.getpro();
+   // this.getpro();
   },
   mounted(){
   		$('#loading').show()
-		   this.timer = setInterval(() => {
-                this.getpro();
-           }, 10000)
+		   // this.timer = setInterval(() => {
+     //            this.getpro();
+     //       }, 10000)
   },
    beforeDestroy() {       // 页面离开时断开连接,清除定时器
       clearInterval(this.timer);
    },
-// watch:{
-// 	prolist(val,oldval){
-// 		for (var i=0;i<prolist.length;i++) {
-// 			if(val[i].lastP!==oldval[i].lastP){
-// 				this.index=0;
-// 				setTimeout(function(){
-// 						this.index='';
-// 				},1000)
-// 				
-// 			}
-// 			
-// 		}
-// 	},
-// 	deep:true
-// },
   methods:{
   	getbanner(){           //获取轮播图
 			let _this=this;
@@ -113,31 +103,24 @@ export default {
 			 	dataType:"json", 
 			 	type:"post",
 			 	url:this.testUrl+'mobile/getBanner',
-			 	data:{},			 	
+			 	data:{},
 			 	success:function(res){
 		       		if(res.code==200){
 		       		  _this.bannerlist=res.data;
 					  console.log(res)
 		       		}
-		       
-		         },          
+
+		         },
 		         error:function(res){
-		          _this.$toast('网络错误');
+		          _this.$toast(this.$store.state.emsg)
 		         },
 		        complete:function(){
 		        	$('#loading').hide()
 		        }
 			 });
   	},
-	  prodetail(item,productCode){      //跳转详情页
-	  	if(item.status=='0'){
-	  		 this.$toast('已休市');
-	  		return false;
-	  	}else{
-	  		this.$router.push({path:'/prodetail',query:{productCode:productCode}})
-	  	}
-	  	
-	  	
+	  deal(id){      //跳转详情页
+	  		this.$router.push({path:'/deal',query:{id:id}})
 	  },
 		getpro(){          //获取行情
 			let _this=this;
@@ -145,18 +128,18 @@ export default {
 			 	dataType:"json", 
 			 	type:"get",
 			 	url:this.testUrl+'product/getIndex',
-			 	data:{},		 	
+			 	data:{},
 			 	success:function(res){
 		       		if(res.code==200){
 		       		  _this.prolist=res.data;
 		       		}
-		       
-		         },          
+
+		         },
 		         error:function(res){
-		          _this.$toast('网络错误');
+		          _this.$toast(this.$store.state.emsg)
 		         },
 		        complete:function(){
-		        	
+
 		        }
 			 });
 		},
@@ -176,7 +159,7 @@ export default {
 	width: 100%;
 	background: #fff;
 	z-index: 9;
-}	
+}
 .product>ul{
 	display: flex;
 	flex-wrap:wrap;
@@ -198,7 +181,16 @@ export default {
 li{
   border-left: 0;
 }
-li>p:nth-child(1){
+li>img{
+  width: 1.4rem;
+  height: 1.4rem;
+}
+li>p{
+  font-size: 0.32rem;
+  color: #000000;
+  font-weight: bold;
+}
+/* li>p:nth-child(1){
 	color: #333333;
 	font-size: 0.4rem;
 }
@@ -212,7 +204,7 @@ li>p:nth-child(2)>img{
 }
 li>p:nth-child(3){
 	font-size: 0.32rem;
-}
+} */
 ul>li:nth-child(1){
 	border-bottom:0;
 	border-left: 0;

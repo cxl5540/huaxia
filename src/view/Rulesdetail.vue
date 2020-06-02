@@ -1,7 +1,7 @@
 <template>
  <div>
  	<div class="header">
-	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>返回</span>
+	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>{{$store.state.lg=='C'?'返回':'Back'}}</span>
 	 	<span>{{info.ruleName}}</span>
 	 	<span style="opacity: 0;">title</span>
 	</div>

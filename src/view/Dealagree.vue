@@ -1,8 +1,8 @@
 <template>
 	<div class="agree">
 		<div class="header">
-		 	<span @click="back()"><img src="../assets/b_fanhui.png"/>返回</span>
-		 	<span>协议签署</span>
+		 	<span @click="back()"><img src="../assets/b_fanhui.png"/>{{$store.state.lg=='C'?'返回':'Back'}}</span>
+		 	<span>{{$store.state.lg=='C'?'协议签署':'Agreement signed'}}</span>
 		 	<span style="opacity: 0;">title</span>
 		 </div>
 		 <div class="content">
@@ -11,9 +11,9 @@
 		 	<p>期货具有高风险，并非适于所有的投资人。交易亏损金额也许会大于您的初始投资。交易期货之前，请仔细阅读相关规定及风险条款;平台使用保证金进行交易，仅适用于可承受高风险的投资人交易之前请确保您具备风险承受能力。期货采用撮合制交易模式，投资者盈亏取决于其对期货市场多空行情判断和交易技术水平，平台仅作为交易工具提供方，投资过程中可能出现因行情波动剧烈而导致实际亏损金额大于缴纳保证金金额，平台与投资者亏并无相关。期市有风险，投资需谨慎，适可而止，风险自担。如有异议，请不要参与交易!</p>
 		 	<p @click="view">《平台风险告知书》<span>查看<img src="../assets/b_jiantou-l.png" alt="" /></span></p>
 		 </div>
-		 <button @click="dealagree()">已阅读并同意</button>
+		 <button @click="dealagree()">{{$store.state.lg=='C'?'已阅读并同意':'Read and Agree'}}</button>
 	</div>
-	
+
 </template>
 
 <script>
@@ -27,14 +27,14 @@ export default {
     	type:''
     }
   },
- 
+
   created(){
 	this.type=this.$route.query.type;
 	this.money=this.$route.query.money;
 	this.productCode=this.$route.query.productCode;
   },
   mounted(){
-		
+
   },
   methods:{
 	back(){
@@ -47,14 +47,14 @@ export default {
 		this.$router.push({path:'/agreement',query:{type:'see'}})
 	}
   }
- }	
+ }
 </script>
 
 <style scoped>
 .agree{
 	height: 100vh;
 	background: #F1F1F1;
-}	
+}
 .content{
 	color: #333333;
 	font-size:0.37rem;
@@ -98,5 +98,5 @@ button{
 	position: absolute;
 	bottom: 0;
 	left: 0;
-}	
+}
 </style>

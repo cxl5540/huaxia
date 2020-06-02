@@ -1,15 +1,17 @@
 <template>
 	<div class="buy">
 		 <div class="header">
-		 	<span @click="back()"><img src="../assets/b_fanhui.png"/>返回</span>
-		 	<span>{{type=='add'?'支付宝充值':'提现'}}</span>
+		 	<span @click="back()"><img src="../assets/b_fanhui.png"/>{{$store.state.lg=='C'?'返回':'Back'}}</span>
+		 	<span v-if="$store.state.lg=='C'">{{type=='add'?'支付宝充值':'提现'}}</span>
+      <span  v-if="$store.state.lg=='E'">{{type=='add'?'Recharge':'Withdrawal'}}</span>
 		 	<span style="opacity: 0;">title</span>
 		 </div>
 		 <div class="bgline"></div>
 		 <div class="money">
-		 	<p>{{type=='add'?'充值金额':'提现金额'}}</p>
+		 	<p v-if="$store.state.lg=='C'">{{type=='add'?'充值金额':'提现金额'}}</p>
+      <p  v-if="$store.state.lg=='E'">{{type=='add'?'Recharge amount':'Withdrawal amount'}}</p>
 		 	<p><span>￥</span><input type="number" v-model="buymoney"  @blur="getbuymoney()"/></p>
-		 	<p>账户余额{{ye}}元</p>
+		 	<p>{{$store.state.lg=='C'?'账户余额':'Account balance'}}:￥{{ye}}</p>
 		 </div>
 		 <div  v-if="type=='cut'" style="text-align: left;">
 			 <mt-radio
@@ -19,8 +21,9 @@
 			 </mt-radio>
 			<!-- <img src="../assets/images/pic_chenggong.png" alt=""> -->
 		 </div>
-		 <span><img src="../assets/b_zhushi_h.png"/>投资有风险，入市需谨慎</span>
-		 <button :class="type=='add'?'bgup':'bgdown'" @click="submit()">{{type=='add'?'支付宝充值':'提现'}}</button>
+		  <span><img src="../assets/b_zhushi_h.png"/>{{$store.state.lg=='C'?'投资有风险，入市需谨慎':'There are risks in investment,cautious when entering the market'}}</span>
+		 <button v-if="$store.state.lg=='C'" :class="type=='add'?'bgup':'bgdown'" @click="submit()">{{type=='add'?'支付宝充值':'提现'}}</button>
+      <button v-if="$store.state.lg=='E'" :class="type=='add'?'bgup':'bgdown'" @click="submit()">{{type=='add'?'Recharge':'Withdrawal'}}</button>
 	</div>
 </template>
 
@@ -36,6 +39,7 @@ export default {
     	ye:'',
     	buymoney:'',
 		value:'',
+    timer:'',
 		options : [
 		  {
 		    label: '支付宝',
@@ -48,14 +52,14 @@ export default {
 		]
     }
   },
- 
+
   created(){
-	  this.value=this.options[0].value; 
+	  this.value=this.options[0].value;
    this.type=this.$route.query.type;
    this.getinfo();
   },
   mounted(){
-		
+
   },
   methods:{
   	back(){
@@ -69,12 +73,12 @@ export default {
 	 	url:this.testUrl+'mobile/getMyCenter',
 	 	data:{
 	 		uid:localStorage.getItem('uid')
-	 	},  
+	 	},
 	 	success:function(res){
        		if(res.code==200){
        		   _this.ye=res.data.balance;
-       		}      
-         },          
+       		}
+         },
          error:function(res){
            _this.$toast('网络错误');
          },
@@ -85,7 +89,13 @@ export default {
    },
 	  getbuymoney(){   //输入资金
 	  	this.buymoney=Number(this.buymoney).toFixed(2);
-		this.buymoney=this.buymoney.toString()
+      if(this.buymoney<100&&this.type=='add'){
+        this.$toast(this.$store.state.lg=='C'?'充值金额需大于100元':'The recharge amount should be more than 100 yuan');
+         this.buymoney='';
+      }else{
+        this.buymoney=this.buymoney.toString()
+      }
+
 	  },
 	submit(){
 			let _this=this;
@@ -98,17 +108,21 @@ export default {
 			 	data:{
 			 		uid:localStorage.getItem('uid'),
 					money:this.buymoney
-			 	},  
+			 	},
 			 	success:function(res){
-					 _this.$indicator.close()
-			   		if(res.code==200){
-			   		 window.location.href=res.data
+			   		if(res.code==201){
+                _this.$indicator.close()
+               // _this.timer = setInterval(() => {
+               //     _this.addyes(res.data.oid)
+               // }, 2000)
+              window.location.href =res.data.url;
 			   		}else{
-					 _this.$toast(res.msg);	
-					}      
-			     },          
+					}
+			     },
 			     error:function(res){
-			       _this.$toast('网络错误');
+			       _this.$toast(_this.$store.state.emsg);
+        	   $('#loading').hide()
+              _this.$indicator.close()
 			     },
 			    complete:function(){
 			    	$('#loading').hide()
@@ -123,7 +137,7 @@ export default {
 			 		uid:localStorage.getItem('uid'),
 					money:this.buymoney,
 					way:this.value
-			 	},  
+			 	},
 			 	success:function(res){
 					 _this.$indicator.close()
 			   		if(res.code==200){
@@ -131,19 +145,38 @@ export default {
 					  _this.$router.go(-1)
 			   		}else{
 					  _this.$toast(res.msg);
-					}      
-			     },          
+					}
+			     },
 			     error:function(res){
-			       _this.$toast('网络错误');
+			       _this.$toast(_this.$store.state.emsg);
 			     },
 			    complete:function(){
 			    	$('#loading').hide()
 			    }
 			 });
 		}
-	}
+	},
+  addyes(oid){
+    console.log(oid)
+    $.ajax({
+     	dataType:"json", 
+     	type:"get",
+     	url:'http://47.114.90.55/game/app/user/getPayOrderStatus',
+     	data:{
+     		orderno:oid
+     	},
+     	success:function(res){
+    		 console.log(res)
+         },
+         error:function(res){
+
+         },
+        complete:function(){
+        }
+     });
+  },
   }
- }		
+ }
 </script>
 
 <style scoped>
@@ -152,7 +185,7 @@ export default {
 	background: #F1F1F1;
 	width: 100%;
 	overflow: hidden;
-}	
+}
 .money{
 	background: #fff;
 	box-sizing: border-box;
@@ -214,5 +247,5 @@ export default {
 	margin-right: 0.13rem;
 	position: relative;
     top: -2px;
-}	
+}
 </style>

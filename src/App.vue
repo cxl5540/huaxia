@@ -8,7 +8,9 @@
 		</div>
   </div>
 	
-    <router-view/>
+    <keep-alive>
+       <router-view v-if='$route.meta.keepAlive'></router-view>
+    </keep-alive><router-view v-if='!$route.meta.keepAlive'></router-view>
 
   </div>
 </template>
@@ -165,7 +167,7 @@ h3,p{
  }
 	.header>span{
 		display: inline-block;
-		width: 33%;
+		/* width: 33%; */
 	}
 	.header>span:nth-child(1){
 		text-align: left;

@@ -4,29 +4,28 @@ import Index from '@/view/index'
 import Deal from '@/view/deal'
 import News from '@/view/news'
 import Mine from '@/view/mine'
-import Moneydetail from '@/view/moneydetail'   
-import Dealdetail from '@/view/dealdetail'       
+import Moneydetail from '@/view/moneydetail'
+import Dealdetail from '@/view/dealdetail'
 import Dealrules from '@/view/dealrules'
-import Setting from '@/view/setting'   
+import Setting from '@/view/setting'
 import Login from '@/view/login'
 import Register from '@/view/register'
-import Agreement from '@/view/agreement' 
-import Forgetpass from '@/view/forgetpass'  
-import Changepass from '@/view/changepass' 
+import Agreement from '@/view/agreement'
+import Forgetpass from '@/view/forgetpass'
+import Changepass from '@/view/changepass'
 import Changetel from '@/view/changetel'
 import Prodetail from '@/view/prodetail'
 import Buyin from '@/view/buyin'
-import Surebuy from '@/view/surebuy'             
+import Surebuy from '@/view/surebuy'
 import Selldetail from '@/view/selldetail'
 import Dealagree from '@/view/dealagree'
-import Carset from '@/view/carset'        
+import Carset from '@/view/carset'
 import Cardsure from '@/view/cardsure'
 import Rulesdetail from '@/view/rulesdetail'
-import Addmoney from '@/view/addmoney' 
-import Home from '@/components/Home'                    
-import question from '@/components/question'       
-import result from '@/components/result'  
-import Chat from '@/view/Chat'     
+import Addmoney from '@/view/addmoney'
+import Home from '@/components/Home'
+import question from '@/components/question'
+import result from '@/components/result'
 Vue.use(Router)
 
 export default new Router({
@@ -36,7 +35,7 @@ export default new Router({
       name: 'Index',
       component: Index,
       meta:{
-      	title:'首页'
+      	title:'首页',
       }
 
     },
@@ -45,7 +44,7 @@ export default new Router({
       name: 'Index',
       component: Index,
       meta:{
-      	title:'首页'
+      	title:'首页',
       }
 
     },
@@ -62,7 +61,8 @@ export default new Router({
       name: 'Deal',
       component: Deal,
       meta:{
-      	title:'交易'
+      	title:'交易',
+        // keepAlive:true,
       }
     },
     {
@@ -89,14 +89,6 @@ export default new Router({
       	title:'交易明细'
       }
     },
-		{
-		  path: '/chat',
-		  name: 'Chat',
-		  component: Chat,
-		  meta:{
-		  	title:'联系客服'
-		  }
-		},
     {
       path: '/dealrules',
       name: 'Dealrules',
@@ -242,7 +234,7 @@ export default new Router({
       path: '/result',
       name: 'result',
       component: result,
-      
+
     },
 
   ]

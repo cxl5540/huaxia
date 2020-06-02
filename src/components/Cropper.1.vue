@@ -1,12 +1,12 @@
 <template>
 	<div>
 		<div class="top">
-			<img  @click="upload" :onerror="defaultSrc" :src='userImg' alt="" />
+			<img  @click="upload"  :src='userImg' alt="" />
 			<div>
 				<p>
           <span v-if="$store.state.lg=='C'">{{info.realName?info.realName:'未登录'}}</span>
            <span  v-if="$store.state.lg=='E'">{{info.realName?info.realName:'Sign in'}}</span>
-          <img @click="changename()" src="../assets/pic_bianji.png" alt="" />
+          <img @click="changename()"  src="../assets/pic_bianji.png" alt="" />
         </p>
 				<p>{{$store.state.lg=='C'?'用户':'user'}}ID:{{info.clientId}}</p>
 			</div>
@@ -39,7 +39,6 @@
 	  userImg:  require('../assets/touxiang.png'),
 	  cropper: {},
 	  filename: '' ,
-     defaultSrc:'this.src="' + require('../assets/touxiang.png')+ '"'
 	 }
  },
  created(){
@@ -123,7 +122,7 @@
    },
    changename(){
    	if(localStorage.getItem('uid')&&this.info.realName!==''){
-   		// var reg = /^[\u4E00-\u9FA5]{1,5}$/;  //姓名
+   		 var reg = /^[\u4E00-\u9FA5]{1,5}$/;  //姓名
 	    this.$messagebox({
 		    $type:'prompt',
 		    title:this.$store.state.lg=='C'?'输入名字':'Input name',
@@ -132,8 +131,8 @@
 		    closeOnClickModal:false,   //点击model背景层不关闭MessageBox
 		    showCancelButton:true,   //不显示取消按钮
         confirmButtonText:this.$store.state.lg=='C'?'确定':'Determine',
-		 //   inputPattern:reg,    //正则条件
-		  //  inputErrorMessage:'姓名为1-5个中文字符',
+		    inputPattern:reg,    //正则条件
+		    inputErrorMessage:'姓名为1-5个中文字符',
 		    showInput:true
 		}).then(({ value, action }) => {
 		    /* value 为填写的值，进行下一步操作*/
@@ -158,15 +157,13 @@
 	 	},
 	 	success:function(res){
        		if(res.code==200){
-            var msg='';
-            _this.$store.state.lg=='C'?msg='修改成功':msg='Succeeded',
-       		  _this.$toast(msg);
+       		  _this.$toast('修改成功！');
        		 _this.info.realName=newPassword;
        		 _const.username=newPassword;
        		}
          },
          error:function(res){
-           _this.$toast(_this.$store.state.emsg);
+           _this.$toast('网络错误');
          },
         complete:function(){
         	$('#loading').hide()
@@ -174,7 +171,6 @@
 	 });
    },
    getinfo(){
-     	$('#loading').show()
    	let _this=this;
    	$.ajax({
 	 	dataType:"json", 
@@ -189,11 +185,10 @@
        		 if(res.data.headImg){
        		 	 _this.userImg=_this.testUrl+_this.info.headImg;
        		 }
-       		   _this.$emit('fromChild',JSON.stringify(res.data));
+
+       		   _this.$emit('fromChild',res.data.balance);
        		   console.log(res.data.balance)
-       		}else if(res.code==400){
-             localStorage.clear();
-          }
+       		}
          },
          error:function(res){
            _this.$toast(_this.$store.state.emsg);

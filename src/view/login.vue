@@ -3,25 +3,25 @@
  	<div class="header">
 	 	<span @click="back()"><img src="../assets/b_fanhui.png"/></span>
 	 	<span style="opacity: 0;">银行卡管理</span>
-	 	<span @click="home()" >首页</span>
+	 	<span @click="home()" >{{$store.state.lg=='C'?'首页':'Home'}}</span>
 	 </div>
      <div class="logo">
-     	<img src="../assets/denlu.png"/>
-     	<p>欢迎来到银河金服，<router-link to='/register'><span style="color: #3168FA;">立即注册</span></router-link></p>
+     	<img src="../assets/images/logo.png"/>
+     	<p>{{$store.state.lg=='C'?'欢迎来到华夏金服':'Welcome to HuaXia gold suit'}}，<router-link to='/register'><span style="color: #3168FA;">{{$store.state.lg=='C'?'立即注册':'Register'}}</span></router-link></p>
      </div>
      <div class="msg">
      	<p>
-     		<span>手机号:</span>
-     		<input type="number"  v-model="tel" placeholder="请输入手机号"/>
+     		<span>{{$store.state.lg=='C'?'手机号':'phone number'}}:</span>
+     		<input type="number"  v-model="tel" :placeholder="$store.state.lg=='C'?'请输入手机号':'phone number'"/>
      	</p>
      	<p>
-     		<span>密码:</span>
-     		<input type="password"   v-model="password" placeholder="请输入密码"/>
-     	</p>     	
+     		<span>{{$store.state.lg=='C'?'密码':'password'}}:</span>
+     		<input type="password"   v-model="password" :placeholder="$store.state.lg=='C'?'请输入密码':'password'"/>
+     	</p>
      </div>
      <div class="btn">
-     	<p><router-link to='/forgetpass'>忘记密码<img src="../assets/b_y-x.png" alt="" /></router-link></p>
-     	<button @click="login">登录</button>
+     	<p><router-link to='/forgetpass'>{{$store.state.lg=='C'?'忘记密码':'Forget password'}}<img src="../assets/b_y-x.png" alt="" /></router-link></p>
+     	<button @click="login">{{$store.state.lg=='C'?'登录':'Sign in'}}</button>
      </div>
  </div>
 </template>
@@ -39,14 +39,14 @@ export default {
     	formurl:''
     }
   },
- 
+
   created(){
 
   },
   mounted(){
   },
 beforeRouteEnter (to, from, next) {
-     
+
        next(vm => {
         vm.formurl=from.name;
       });
@@ -57,7 +57,7 @@ beforeRouteEnter (to, from, next) {
 	  	this.$router.go(-1)
 	  },
 	  home(){
-		this.$router.push('/')  
+		this.$router.push('/')
 	  },
 	login(){
 		$('#loading').show()
@@ -65,12 +65,13 @@ beforeRouteEnter (to, from, next) {
   		$.ajax({
 		 	dataType:"json", 
 		 	type:"post",
-		 	url:this.testUrl+'mobile/login',
+		   url:this.testUrl+'mobile/login',
+      // url:'http://211.149.255.51/yhjf/mobile/login',
 		 	data:{
 		 		phone:this.tel,
 		 		password:this.password
 		 	},
-		 	
+
 		 	success:function(res){
 		 		$('#loading').hide()
 	       		if(res.code==200){
@@ -87,21 +88,21 @@ beforeRouteEnter (to, from, next) {
 	       		}else{
 	       		   _const.uid=res.data.clientId;
 	       		}
-	       			  
-	       		if(_this.formurl=='Register' ||_this.formurl=='Forgetpass' ){
+
+	       		if(_this.formurl=='Register' ||_this.formurl=='Changepass' ){
 	       			_this.$router.push({path:'/index'})
 	       		}else{
-	       		_this.$router.go(-1)	
+	       		_this.$router.go(-1)
 	       		}
-	       		 
-//	       		 _this.$router.push({path:'/index'})
 	       		}else{
-	       			 _this.$toast(res.msg);
+              let msg='';
+              _this.$store.state.lg=='C'?msg='账号或密码错误':msg='Incorrect account or password.'
+	       			 _this.$toast(msg);
 	       		}
-	       
-	         },          
+
+	         },
 	         error:function(res){
-	          _this.$toast('网络错误');
+	          _this.$toast(this.$store.state.emsg);
 	         },
 	        complete:function(){
 	        	$('#loading').hide()
@@ -110,7 +111,7 @@ beforeRouteEnter (to, from, next) {
 	  },
 
   	}
-  }	
+  }
 </script>
 
 <style scoped>
@@ -119,15 +120,18 @@ beforeRouteEnter (to, from, next) {
 }
 .login{
 	box-sizing: border-box;
-	margin: 0 0.66rem;
+	margin: 0 0.5rem;
 	overflow: hidden;
-}	
+}
 .logo{
 	text-align: left;
 	color: #666666;
 	font-size: 0.49rem;
 	font-weight: bold;
 	margin: 1.6rem 0 1.6rem 0;
+}
+.logo>p{
+  display: flex;
 }
 .logo img{
 	max-height: 1.6rem;
@@ -136,7 +140,7 @@ beforeRouteEnter (to, from, next) {
 	width: 100%;
 	display: flex;
 	justify-content: space-between;
-	padding: 0.53rem 0;	
+	padding: 0.53rem 0;
 	text-align: left;
 }
 .msg>p>span{
@@ -177,5 +181,5 @@ button{
    font-size: 0.49rem;
    border: none;
    border-radius: 1.2rem;
-}	
+}
 </style>

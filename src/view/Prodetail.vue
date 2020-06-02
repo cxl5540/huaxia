@@ -1,17 +1,17 @@
 <template>
  <div class="prodetail">
 	 <div class="header">
-	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>返回</span>
-	 	<span>产品详情</span>
-	 	<span @click="roulers">规则</span>
+	 	<span @click="back()"><img src="../assets/b_fanhui.png"/>{{$store.state.lg=='C'?'Back':'Back'}}</span>
+	 	<span>{{$store.state.lg=='C'?'产品详情':'Details'}}</span>
+	 	<span @click="roulers">{{$store.state.lg=='C'?'规则':'Rule'}}</span>
 	 </div>
 	 <div class="top">
-	 	<span>可用资金:{{money}}</span>
-	 	<span @click="addmoney">充值</span>
+	 	<span>{{$store.state.lg=='C'?'可用金额':'Available amount'}}:￥{{money}}</span>
+	 	<span @click="addmoney">{{$store.state.lg=='C'?'充值':'Recharge'}}</span>
 	 </div>
 	 <div class="mid">
 	 	<div class="lt">
-	 		<p>当前价格</p>
+	 		<p>{{$store.state.lg=='C'?'当前价格':'Last'}}</p>
 	 		<div>
 	 			<span>{{detaillist.lastP}}</span>
 	 			<div>
@@ -19,22 +19,23 @@
 	 				<p>{{detaillist.lastVf}}</p>
 	 			</div>
 	 		</div>
-	 		<p class="name"><span>{{detaillist.productName}}</span><span>{{detaillist.productCode}}</span></p>
+	 		<p class="name"><span>{{$store.state.lg=='C'?detaillist.productName:detaillist.englishName}}
+      </span><span>{{detaillist.productCode}}</span></p>
 	 	</div>
 	 	<div class="rt">
-	 		<p>当前交易情况</p>
+	 		<p>{{$store.state.lg=='C'?'当前交易情况':'Current transactions'}}</p>
 	 		<div>
-	 			<p><span></span> <span>买入<span>{{detaillist.lastBuyNum}}</span></span></p>
-	 			<p><span></span> <span>卖出<span>{{detaillist.lastSellNum}}</span></span></p>
+	 			<p><span></span> <span>{{$store.state.lg=='C'?'买入':'Buy'}}<span>{{detaillist.lastBuyNum}}</span></span></p>
+	 			<p><span></span> <span>{{$store.state.lg=='C'?'卖出':'Sell'}}<span>{{detaillist.lastSellNum}}</span></span></p>
 	 		</div>
 	 	</div>
 	 </div>
 	 <Kline></Kline>
 	  <div class="btn">
-		 	<button @click="goccang">持仓</button>
-		 	<button @click="gojiesuan">结算</button>
-		 	<button><span @click="buydown()">买跌</span><span>{{detaillist.lastP}}</span></button>
-		 	<button><span  @click="buyin()">买涨</span><span>{{detaillist.lastP}}</span></button>
+		 	<button @click="goccang">{{$store.state.lg=='C'?'持仓':'Position'}}</button>
+		 	<button @click="gojiesuan">{{$store.state.lg=='C'?'结算':'Close'}}</button>
+		 	<button><span @click="buydown()">{{$store.state.lg=='C'?'买跌':'Buy put'}}</span><span>{{detaillist.lastP}}</span></button>
+		 	<button><span  @click="buyin()">{{$store.state.lg=='C'?'买涨':'Buy up'}}</span><span>{{detaillist.lastP}}</span></button>
 		 </div>
  </div>
 </template>
@@ -54,20 +55,20 @@ export default {
     	timer:'',
     }
   },
- 
+
   created(){
   	this.productCode=this.$route.query.productCode;
    this.getmonet();  //获取可用资金
    this.getdetail();//获取详情
   },
   mounted(){
-	 this.timer = setInterval(() => {
-                this.getdetail();
-           }, 5000)		  
+	 // this.timer = setInterval(() => {
+  //               this.getdetail();
+  //          }, 5000)
   },
-   beforeDestroy() {       
+   beforeDestroy() {
          clearInterval(this.timer);
-   },	
+   },
   methods:{
 	back(){
 	  	this.$router.go(-1)
@@ -85,8 +86,8 @@ export default {
 	       		if(res.code==200){
 	       		  _this.money=res.data.balance;
 	       		}
-	       
-	         },          
+
+	         },
 	         error:function(res){
 	          _this.$toast('网络错误');
 	         },
@@ -96,6 +97,7 @@ export default {
 		 });
 	},
 	getdetail(){   //获取详情
+
 	 let _this=this;
   		$.ajax({
 		 	dataType:"json", 
@@ -108,21 +110,21 @@ export default {
 	       		if(res.code==200){
 	       		  _this.detaillist=res.data;
 	       		}
-	       
-	         },          
+
+	         },
 	         error:function(res){
 	          _this.$toast('网络错误');
 	         },
 	        complete:function(){
 	        	$('#loading').hide()
 	        }
-		 });	
+		 });
 	},
 	 buyin(){  //买涨
 	 	if(localStorage.getItem('uid')){
 	 		this.$router.push({path:'/dealagree',query:{type:'in',money:this.money,productCode:this.productCode}})
 	 	}else{
-	 		this.$router.push({path:'/login'})	
+	 		this.$router.push({path:'/login'})
 	 	}
 //	 	this.$router.push({path:'/buyin',query:{type:'in'}})
 	 },
@@ -130,9 +132,9 @@ export default {
 	 	if(localStorage.getItem('uid')){
 	 		this.$router.push({path:'/dealagree',query:{type:'down',money:this.money,productCode:this.productCode}})
 	 	}else{
-	 		this.$router.push({path:'/login'})	
+	 		this.$router.push({path:'/login'})
 	 	}
-	 	
+
 //	 	this.$router.push({path:'/buyin',query:{type:'down'}})
 	 },
 	 goccang(){  //持仓
@@ -141,7 +143,7 @@ export default {
 	 	}else{
 	 		this.$router.push({path:'/login'})
 	 	}
-	 	
+
 	 },
 	 gojiesuan(){  //结算
 	 	if(localStorage.getItem('uid')){
@@ -152,27 +154,22 @@ export default {
 	 },
 	 addmoney(){
 	 	if(localStorage.getItem('uid')){
-	 		 // this.$router.push({path:'/addmoney',query:{type:'add'}})
-			 this.$toast('充值请添加客服微信');
-			 let _this=this;
-			 setTimeout(function(){
-			 				_this.$router.push({path:'/chat'}) 
-			 },2000)
+	 		 this.$router.push({path:'/addmoney',query:{type:'add'}})
 	 	}else{
 	 	   this.$router.push({path:'/login'})
 	 	}
-	   	
+
 	 },
 	 roulers(){ //规则
 		 this.$router.push({path:'/dealrules'})
 	 }
   	}
-  }	
+  }
 </script>
 
 <style scoped>
 .top{
-	display: flex; 
+	display: flex;
 	justify-content: space-between;
 	font-size: 0.37rem;
 	box-sizing: border-box;
@@ -262,9 +259,9 @@ export default {
   	background: #FFFFFF;
   	padding: 0.53rem;
   	color: #666666;
-  	    
-  	
-  }	
+
+
+  }
   .btn>button:nth-child(3){
   	background: #0BA293;
   	color: #fff;
@@ -275,7 +272,7 @@ export default {
   }
   .btn>button:nth-child(3)>span:nth-child(1),.btn>button:nth-child(4)>span:nth-child(1){
   	font-weight: bold;
-  	font-size: 0.48rem;
+  	font-size: 0.43rem;
   	display: block;
   }
 </style>
